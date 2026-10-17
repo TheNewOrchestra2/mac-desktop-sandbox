@@ -1,0 +1,22 @@
+name: Free macOS GUI Environment
+on: workflow_dispatch # Allows you to manually trigger it with a button click
+
+jobs:
+  build:
+    runs-on: macos-latest # Triggers GitHub's latest genuine Mac runner
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Configure macOS GUI Desktop
+      run: |
+        # Turn on native macOS Screen Sharing (VNC server)
+        sudo defaults write /var/db/launchd.db/com.apple.launchd/overrides.plist com.apple.screensharing -dict Disabled -bool false
+        sudo launchctl load -w /System/Library/LaunchDaemons/com.apple.screensharing.plist
+        
+        # Set a password for the 'runner' user account so you can log in
+        sudo dscl . -passwd /Users/runner "MacCloudPassword123"
+
+    - name: Launch Free Secure VNC Tunnel
+      uses: mxschmitt/action-tmate@v3
+      timeout-minutes: 360 # Keeps the Mac running for the maximum 6 hours
